@@ -124,13 +124,10 @@
 
     function createChip(data) {
         data = Object.assign(Object.assign({}, settings().chipData), data || {});
-
         if (data.id === undefined || data.id === null) {
             data.id = guid();
         }
-
         attrs = Object.assign(data.attrs, { "chip-id": data.id });
-
         const chip = createChild('div', attrs, ['chip'], null);
         if (data.image) {
             createChild('img',
@@ -215,7 +212,7 @@
     }
 
     function init(element, options) {
-        // Make coppy of the default options,
+        // Make copy of the default options,
         // copy this options to it
         options = Object.assign(Object.assign({}, settings().OPTIONS), options || {},);
         element.classList.add(settings().chipsClass);
@@ -326,6 +323,6 @@
             }
         }
 
-        _setupEventHandlers()
+        _setupEventHandlers();
     }
 })();
