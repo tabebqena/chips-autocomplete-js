@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+
+    <head>
+        <title>Example</title>
+        <meta name="description" content="Example App">
+        <link rel="stylesheet" href="./style.css">
+
+    </head>
+
+    <body>
+        <p>Example of static chips</p>
+        <div class="chips">
+            <div class="chip">
+                <img src="https://pbs.twimg.com/profile_images/1283958620359516160/p7zz5dxZ_400x400.jpg" width="96"
+                    height="96">
+                <span class="text">Apple</span>
+                <span class="close">&times;</span>
+            </div>
+            <div class="chip">
+                <img src="https://pbs.twimg.com/profile_images/1268192314192613378/SM4qrCnM_400x400.png" width="96"
+                    height="96">
+                <span class="text">ahmad</span>
+                <span class="close">&times;</span>
+            </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        <p>Example of dynamic chips (created by javascript)</p>
+        <div class="chips autocomplete">
+            <input id="myInput" class="chip-input" type="text">
+        </div>
+        <script src="./chips.js"></script>
+        <script src="./autocomplete.js"></script>
+        <script>
+            var brands = [
+                "Apple",
+                "Microsoft",
+                "Huawe",
+                "Oppo"
+            ];
+
+        </script>
+        <script>
+            let ele = document.querySelector(".chips.autocomplete");
+
+            let autocomplete = window.autocomplete.init(
+                document.getElementsByClassName("chip-input")[0],
+                brands,
+                {
+                    onItemSelected: (input, item, htmlElement, autcomplete) => {
+                        Chips.addChip({
+                            text: item.text,
+                            close: true
+                        }, ele);
+                        autcomplete.hide();
+                        input.value = ""
+                    }
+                });
+
+
+            Chips.init(ele, {
+                data: [
+                    {
+                        text: "Apple",
+                        image: "https://pbs.twimg.com/profile_images/1283958620359516160/p7zz5dxZ_400x400.jpg",
+                        onclick: () => { window.location.href = "https://pbs.twimg.com/profile_images/1283958620359516160/p7zz5dxZ_400x400.jpg" },
+                        close: true
+                    },
+                    {
+                        text: "Microsoft",
+                        image: "https://pbs.twimg.com/profile_images/1268192314192613378/SM4qrCnM_400x400.png",
+                        close: true
+                    },
+
+                ],
+                setCloseBtn: true,
+                autocomplete: autocomplete
+            });
+
+            function showDropdown(e) {
+
+                autocomplete.show()
+            }
+            function hideDropdown(e) {
+                autocomplete.hide()
+            }
+        </script>
+    </body>
+
+</html>
