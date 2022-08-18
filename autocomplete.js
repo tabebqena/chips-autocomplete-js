@@ -193,11 +193,19 @@
                     self.show();
                 }
                 if (e.keyCode == 40) {
+                    // down key
                     self.activateNext();
-                } else if (e.keyCode == 38) { //up
+                } else if (e.keyCode == 38) {
+                    // up key
                     self.activatePrev();
                 } else if (e.keyCode == 13) {
+                    // enter
                     self.selectActive();
+                } else if (e.keyCode == 27) {
+                    // escape
+                    if (self.isShown) {
+                        self.hide();
+                    }
                 }
             });
         }
