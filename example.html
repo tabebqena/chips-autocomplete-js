@@ -44,13 +44,14 @@
         </script>
         <script>
             let ele = document.querySelector(".chips.autocomplete");
+            let chips;
 
             let autocomplete = window.autocomplete.init(
                 document.getElementsByClassName("chip-input")[0],
                 brands,
                 {
                     onItemSelected: (input, item, htmlElement, autcomplete) => {
-                        Chips.addChip({
+                        chips.addChip({
                             text: item.text,
                             close: true
                         }, ele);
@@ -60,7 +61,7 @@
                 });
 
 
-            Chips.init(ele, {
+            chips = Chips.init(ele, {
                 data: [
                     {
                         text: "Apple",
@@ -81,13 +82,14 @@
                 autocomplete: autocomplete
             });
 
-            function showDropdown(e) {
+            function showDropdown (e) {
 
                 autocomplete.show()
             }
-            function hideDropdown(e) {
+            function hideDropdown (e) {
                 autocomplete.hide()
             }
+
         </script>
     </body>
 
