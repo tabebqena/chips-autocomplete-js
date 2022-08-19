@@ -1,5 +1,3 @@
-Version: 0.0.1-dev
-==================
 
 CDN
 ===
@@ -12,7 +10,9 @@ https://cdn.jsdelivr.net/gh/tabebqena/chips-autocomplete-js@{TAG}/autocomplete.j
 N.B:. replace {TAG} with the release name.
 The last Version is:
 
+
 .. include:: VERSION.rst
+
 
 For example:
 
