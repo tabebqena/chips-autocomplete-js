@@ -10,6 +10,9 @@ Autocomplete
 https://cdn.jsdelivr.net/gh/tabebqena/chips-autocomplete-js@{TAG}/autocomplete.js
 
 N.B:. replace {TAG} with the release name.
+The last Version is:
+
+.. include:: VERSION.rst
 
 For example:
 
