@@ -7,9 +7,7 @@
         chipClass: 'chip',
         closeClass: 'chip-close',
         chipInputClass: "chip-input",
-        // Whether to automatically set the close btn listener for all user chips
         setCloseBtn: false,
-
         OPTIONS: {
             // chips data , each item is an implementation of chipData
             data: [],
@@ -46,22 +44,6 @@
         return window.Chips;
     })();
 
-    // Set the close btn listener, for user added chips.
-    (() => {
-        if (window.Chips.settings.setCloseBtn) {
-            document.addEventListener(
-                'DOMContentLoaded',
-                () => {
-                    var elems = document.querySelectorAll('.' + settings().chipClass + ' ' + '.' + settings().closeClass);
-                    for (let i = 0; i < elems.length; i++) {
-                        const element = elems[i];
-                        element.addEventListener('click', () => {
-                            element.parentElement.parentElement.remove(element.parentElement)
-                        });
-                    }
-                });
-        }
-    })();
     // Get the Chips global setting
     function settings() {
         return window.Chips.settings;
@@ -291,10 +273,11 @@
                 } else if (target.classList.contains(settings().chipClass)) {
                     target.focus();
 
-                } else if (target.classList.contains(settings().closeClass)) {
-                    let chip = closest(target, settings().chipClass);
-                    removeChip(chip.getAttribute("chip-id"));
                 }
+                // else if (target.classList.contains(settings().closeClass)) {
+                //     let chip = closest(target, settings().chipClass);
+                //     removeChip(chip.getAttribute("chip-id"));
+                // }
             });
         }
 
