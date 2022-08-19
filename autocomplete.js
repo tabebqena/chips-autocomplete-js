@@ -1,22 +1,19 @@
 (function () {
     let DEFAULT_OPTIONS = {
-        filterFun: filterFun,
-        // scoreFun: contentScore,
-        sortFun: null,
+        filter: filter,
+        extractValue: _extractValue,
+        sort: null,
         dropDownClasses: ["dropdown"],
         dropDownItemClasses: [],
         dropDownTag: "div",
-
         hideItem: hideItem,
         showItem: showItem,
         showList: showList,
         hideList: hideList,
         onItemSelected: onItemSelected,
         activeClass: "active",
-        isVisible: isVisible
-
-
-
+        isVisible: isVisible,
+        onListItemCreated: null
     }
 
     function isVisible(element) {
@@ -25,7 +22,6 @@
 
     function onItemSelected(input, item, htmlElement, autcomplete) {
         input.value = item.text;
-        input.setAttribute("data-value", item.value);
         autcomplete.hide();
     }
 
@@ -108,31 +104,49 @@
         }
     }
 
-    function sortFun(value, data) {
+    function sort(value, data) {
         return data;
     }
 
-    function filterFun(value, data) {
+    function _extractValue(object) {
+        return object.text || object;
+    }
+
+    function filter(value, data, extractValue) {
+        if (extractValue === undefined || extractValue === null) {
+            extractValue = _extractValue;
+        }
 
         let scores = {};
         let _data = []
         for (let index = 0; index < data.length; index++) {
-            let score = contentScore(value, data[index].value);
-            if (score > 1) {
+            let itemValue = extractValue(data[index]);
+            let score = contentScore(value, itemValue);
+            if (score > 0) {
                 _data.push(data[index])
-                scores[data[index].value] = score;
+                scores[itemValue] = score;
             }
         }
         _data = _data.sort(
             (a, b) => {
-                let scoreA = scores[a.value];
-                let scoreB = scores[b.value];
+                let scoreA = scores[extractValue(a)];
+                let scoreB = scores[extractValue(b)];
                 return scoreB - scoreA;
             }
         );
 
         return _data;
     }
+
+    // generate unique id 
+    guid = (() => {
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+        }
+        return function () {
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+        };
+    })();
 
     class Autocomplete {
         constructor(input, data, options) {
@@ -166,12 +180,12 @@
         fixData(data) {
             let rv = []
             for (let index = 0; index < data.length; index++) {
-                const element = data[index];
+                let element = data[index];
                 if (typeof (element) == 'string') {
-                    rv.push({ text: element, value: element });
-                } else {
-                    rv.push(element)
+                    element = { text: element };
                 }
+                element._uid = guid();
+                rv.push(element);
             }
             return rv;
         }
@@ -179,11 +193,12 @@
         _setup_listeners() {
             let self = this;
             this.input.addEventListener("input", (e) => {
+                let input = self.input;
                 if (self.isShown) {
                     self.hide();
                 }
-                self.filter(e.target.value, true);
-                self.sort(e.target.value);
+                self.filter(input.value);
+                self.sort(input.value);
                 self.show();
             });
 
@@ -217,8 +232,7 @@
         _show() {
             let lastItem = 0;
             for (let index = 0; index < this.filtered.length; index++) {
-                const val = this.filtered[index].value;
-                let htmlElement = this.dropdownItems[val];
+                let htmlElement = this.dropdownItems[this.filtered[index]._uid];
                 if (htmlElement === null) {
                     continue;
                 }
@@ -238,14 +252,14 @@
 
         _filter(value) {
             this.filtered = this.data;
-            if (this.options.filterFun != null) {
-                this.filtered = this.options.filterFun(value, this.data);
+            if (this.options.filter != null) {
+                this.filtered = this.options.filter(value, this.data, this.options.extractValue);
             }
         }
 
         _sort(value) {
-            if (this.options.sortFun != null) {
-                this.filtered = this.options.sortFun(value, this.filtered)
+            if (this.options.sort != null) {
+                this.filtered = this.options.sort(value, this.filtered)
             }
         }
 
@@ -269,20 +283,29 @@
             let htmlElement = document.createElement("DIV");
             /*make the matching letters bold:*/
             let text = item.text;
-            let value = item.value;
+            let _uid = item._uid;
 
             htmlElement.innerHTML = text;
-            htmlElement.setAttribute("data-value", value);
+            let attrs = item.attrs || {}
+            let attrsKeys = Object.keys(attrs);
+            for (let index = 0; index < attrsKeys.length; index++) {
+                let key = attrsKeys[index]
+                const val = attrs[key];
+                htmlElement.setAttribute(key, val);
+            }
 
             for (let index = 0; index < this.options.dropDownItemClasses.length; index++) {
                 htmlElement.classList.add(this.options.dropDownItemClasses[index]);
             }
 
-            this.dropdownItems[value] = htmlElement;
+            this.dropdownItems[_uid] = htmlElement;
             let self = this;
             htmlElement.addEventListener("click", function (e) {
                 self.options.onItemSelected(self.input, item, htmlElement, self);
             });
+            if (this.options.onListItemCreated !== null && this.options.onListItemCreated !== undefined) {
+                this.options.onListItemCreated(htmlElement, item);
+            }
             return htmlElement;
         }
 
@@ -342,9 +365,6 @@
     window.autocomplete.init = (input, data, options) => {
         return new Autocomplete(input, data, options)
     }
-    // window.autocomplete.options = DEFAULT_OPTIONS;
-    // window.autocomplete.sortFun = contentScore;
-
 }
 )();
 
