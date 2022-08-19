@@ -1,0 +1,26 @@
+{
+  "name": "js-ui",
+  "version": "0.0.1-dev",
+  "description": "Version: 0.0.1-dev ==================",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tabebqena/chips-autocomplete-js.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tabebqena/chips-autocomplete-js/issues"
+  },
+  "homepage": "https://github.com/tabebqena/chips-autocomplete-js#readme",
+  "devDependencies": {
+    "eslint": "^8.22.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.2.4",
+    "eslint-plugin-promise": "^6.0.0"
+  }
+}
