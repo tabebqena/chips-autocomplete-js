@@ -127,8 +127,10 @@
         if (data.id === undefined || data.id === null) {
             data.id = guid();
         }
+        data.closeId = data.id + "_close"
         attrs = Object.assign(data.attrs, { "chip-id": data.id });
         const chip = createChild('div', attrs, ['chip'], null);
+
         if (data.image) {
             createChild('img',
                 {
@@ -154,7 +156,7 @@
         if (data.close) {
             const classes = data.closeClasses || ['chip-close']
             let span = createChild('span',
-                {},
+                { id: data.closeId },
                 classes,
                 chip,
                 {}
@@ -163,7 +165,13 @@
             span.innerHTML = data.closeHTML || '&times'
         }
         if (data.onclick !== null && data.onclick !== undefined) {
-            chip.addEventListener("click", (e) => { data.onclick(e) })
+
+
+            chip.addEventListener("click", (e) => {
+                if (e.target.getAttribute("id") !== data.closeId) {
+                    data.onclick(e);
+                }
+            })
         }
         return chip;
     }
@@ -269,7 +277,7 @@
 
         function _handleChipClick(_element) {
             _element.addEventListener('click', (e) => {
-                e.preventDefault()
+                e.preventDefault();
                 let target = e.target;
                 if (target.classList.contains(settings().chipsClass)) {
                     if (Registery.input !== undefined && Registery.input !== null) {
@@ -282,15 +290,10 @@
 
                 } else if (target.classList.contains(settings().chipClass)) {
                     target.focus();
-                    // Registery._selected = target.getAttribute("chip-index");
-                    // if ()
 
                 } else if (target.classList.contains(settings().closeClass)) {
                     let chip = closest(target, settings().chipClass);
                     removeChip(chip.getAttribute("chip-id"));
-                    // delete Registery.chips[chip.getAttribute("chip-id")]
-                    // _element.removeChild(chip)
-                    // Registery.input.focus();
                 }
             });
         }
