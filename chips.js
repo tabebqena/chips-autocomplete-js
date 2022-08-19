@@ -1,331 +1,297 @@
-
-(() => {
-    // Define defaults
-    CHIP_DEFAULTS = {
-        hasInput: true,
-        chipsClass: 'chips',
-        chipClass: 'chip',
-        closeClass: 'chip-close',
-        chipInputClass: "chip-input",
-        // Whether to automatically set the close btn listener for all user chips
-        setCloseBtn: false,
-
-        OPTIONS: {
-            // chips data , each item is an implementation of chipData
-            data: [],
-            placeholder: ''
-        },
-        // template for default chipData
-        chipData: {
-            id: null,
-            text: '',
-            img: '',
-            imageWidth: 96,
-            imageHeight: 96,
-            attrs: {
-                tabindex: '0',
-            },
-            // close setting
-            close: true,
-            closeClasses: null,
-            closeCallback: null,
-            closeHTML: null,
-            onclick: null,
-        }
+(
+  () => {
+    const DEFAULT_SETTINGS = {
+      createInput: true,
+      chipsClass: 'chips',
+      chipClass: 'chip',
+      closeClass: 'chip-close',
+      chipInputClass: 'chip-input',
+      setCloseBtn: false,
+      imageWidth: 96,
+      imageHeight: 96,
+      close: true,
+      onclick: null,
+      onclose: null,
+      data: []
     };
 
     // Define global object Chips
-    (function setGlobal() {
-        if (window.Chips == undefined) {
-            window.Chips = {};
-            window.Chips.settings = CHIP_DEFAULTS;
-            window.Chips.addChip = addChip;
-            window.Chips.init = init;
-            window.Chips.registery = {}
-        }
-        return window.Chips;
-    })();
+    (function setGlobal () {
+      if (window.Chips === undefined || window.Chips === null) {
+        window.Chips = {}
+        window.Chips.settings = DEFAULT_SETTINGS
+        window.Chips.init = init
+      }
+    })()
 
-    // Set the close btn listener, for user added chips.
-    (() => {
-        if (window.Chips.settings.setCloseBtn) {
-            document.addEventListener(
-                'DOMContentLoaded',
-                () => {
-                    var elems = document.querySelectorAll('.' + settings().chipClass + ' ' + '.' + settings().closeClass);
-                    for (let i = 0; i < elems.length; i++) {
-                        const element = elems[i];
-                        element.addEventListener('click', () => {
-                            element.parentElement.parentElement.remove(element.parentElement)
-                        });
-                    }
-                });
+    const chipData = {
+      id: null,
+      text: '',
+      img: '',
+      attrs: {
+        tabindex: '0'
+      },
+      closeClasses: null,
+      closeHTML: null,
+      onclick: null,
+      onclose: null
+    }
+
+    /**
+    * generate unique id
+    */
+    const guid = (() => {
+      function s4 () {
+        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)
+      }
+      return function () {
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4()
+      }
+    })()
+
+    function createChild (tag, attributes, classes, parent, options) {
+      const ele = document.createElement(tag)
+      const attrsKeys = Object.keys(attributes)
+      for (let index = 0; index < attrsKeys.length; index++) {
+        ele.setAttribute(attrsKeys[index], attributes[attrsKeys[index]])
+      }
+      for (let index = 0; index < classes.length; index++) {
+        const kls = classes[index]
+        ele.classList.add(kls)
+      }
+      if (parent !== undefined && parent !== null) {
+        parent.appendChild(ele)
+      }
+      return ele
+    }
+
+    /**
+     * _create_chip, This is an internal function, accessed by the Chips._addChip method
+     * @param {*} data The chip data to create,
+     * @returns HTMLElement
+     */
+    function _createChip (data) {
+      data = Object.assign(Object.assign({}, chipData), data)
+      data.closeId = data.id + '_close'
+      const attrs = Object.assign(data.attrs, { 'chip-id': data.id })
+      const chip = createChild('div', attrs, ['chip'], null)
+
+      if (data.image) {
+        createChild('img',
+          {
+            width: data.imageWidth || 96,
+            height: data.imageHeight || 96,
+            src: data.image
+          },
+          [],
+          chip,
+          {}
+        )
+      }
+      if (data.text) {
+        const span = createChild(
+          'span',
+          {},
+          [],
+          chip,
+          {}
+        )
+        span.innerHTML = data.text
+      }
+      if (data.close) {
+        const classes = data.closeClasses || ['chip-close']
+        const span = createChild('span',
+          { id: data.closeId },
+          classes,
+          chip,
+          {}
+        )
+
+        span.innerHTML = data.closeHTML || '&times'
+        if (data.onclose !== null && data.onclose !== undefined) {
+          span.addEventListener('click', (e) => {
+            e.stopPropagation()
+            data.onclose(chip)
+          })
         }
-    })();
+      }
+      if (data.onclick !== null && data.onclick !== undefined) {
+        chip.addEventListener('click', (e) => {
+          // if (e.target.getAttribute('id') !== data.closeId) {
+          data.onclick(e)
+          // }
+        })
+      }
+      return chip
+    }
+
     // Get the Chips global setting
-    function settings() {
-        return window.Chips.settings;
-    }
-    // Get the chips registery
-    function registery() {
-        return window.Chips.registery;
+    function settings () {
+      return window.Chips.settings
     }
 
-    // generate unique id 
-    guid = (() => {
-        function s4() {
-            return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-        }
-        return function () {
-            return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-        };
-    })();
-
-    // find closest element that have class
-    function closest(el, cls) {
-        if (el.hasAttribute("closest")) {
-            return el.closest(cls);
-        }
-
-        while ((el = el.parentElement) && !el.classList.contains(cls));
-        return el;
+    function assign (listOfObjects) {
+      let o = {}
+      for (let index = 0; index < listOfObjects.length; index++) {
+        o = Object.assign(o, listOfObjects[index])
+      }
+      return o
     }
 
-
-    function createChild(tag, attributes, classes, parent, options) {
-        let ele = document.createElement(tag);
-        let attrs_keys = Object.keys(attributes);
-        for (let index = 0; index < attrs_keys.length; index++) {
-            ele.setAttribute(attrs_keys[index], attributes[attrs_keys[index]]);
+    class ChipsElement {
+      // eslint-disable-next-line space-before-function-paren
+      constructor(element, options) {
+        this.options = assign([settings(), options || {}])
+        this.options.cleanedData = []
+        this.element = element
+        this._setElementListeners()
+        this.input = this._setInput()
+        element.classList.add(this.options.chipsClass)
+        if (element.getAttribute('chips-id') === undefined) {
+          element.setAttribute('chips-id', guid())
         }
-        for (let index = 0; index < classes.length; index++) {
-            const kls = classes[index];
-            ele.classList.add(kls);
-        }
-        if (parent != undefined) {
-            parent.appendChild(ele);
-        }
-        return ele;
-    }
+        this.addChip = this._addChip.bind(this)
+        this.setAutocomplete = this._setAutocomplete.bind(this)
 
-    function removeChip(id) {
-        let chips = document.getElementsByClassName(settings().chipClass);
-        for (let index = 0; index < chips.length; index++) {
-            if (chips[index].getAttribute("chip-id") == id) {
-                let elid = chips[index].parentElement.getAttribute("chips-id");
-                chips[index].parentElement.removeChild(chips[index]);
-
-                let registeryChips = registery()[elid].chips;
-                delete registeryChips[id]
-                return;
-            }
+        for (let index = 0; index < this.options.data.length; index++) {
+          this.addChip(this.options.data[index])
         }
-    }
+      }
 
-    function createChip(data) {
-        data = Object.assign(Object.assign({}, settings().chipData), data || {});
+      _setAutocomplete (autocompleteObj) {
+        this.options.autocomplete = autocompleteObj
+      }
+
+      /**
+       * add chip to element by passed data
+       * @param {*} data chip data, Please see `chipData` documnetations.
+       */
+      _addChip (data) {
+        const elid = this.element.getAttribute('chips-id')
+        if (elid === undefined) {
+          throw Error('You should call init first')
+        }
+        // get input element
+        data = assign([chipData, this.options, data])
         if (data.id === undefined || data.id === null) {
-            data.id = guid();
+          data.id = guid()
         }
-        data.closeId = data.id + "_close"
-        attrs = Object.assign(data.attrs, { "chip-id": data.id });
-        const chip = createChild('div', attrs, ['chip'], null);
+        data.onclick = (e) => { this._handleChipClick(e, data) }
+        data.onclose = (e) => { this._handleChipClose(e, data) }
 
-        if (data.image) {
-            createChild('img',
-                {
-                    width: data.imageWidth || 96,
-                    height: data.imageHeight || 96,
-                    src: data.image,
-                },
-                [],
-                chip,
-                {}
-            )
-        }
-        if (data.text) {
-            let span = createChild(
-                'span',
-                {},
-                [],
-                chip,
-                {}
-            );
-            span.innerHTML = data.text
-        }
-        if (data.close) {
-            const classes = data.closeClasses || ['chip-close']
-            let span = createChild('span',
-                { id: data.closeId },
-                classes,
-                chip,
-                {}
-            );
-
-            span.innerHTML = data.closeHTML || '&times'
-        }
-        if (data.onclick !== null && data.onclick !== undefined) {
-
-
-            chip.addEventListener("click", (e) => {
-                if (e.target.getAttribute("id") !== data.closeId) {
-                    data.onclick(e);
-                }
-            })
-        }
-        return chip;
-    }
-
-    function addChip(data, element) {
-        let elid = element.getAttribute('chips-id');
-        if (elid === undefined || elid === null) {
-            elid = guid();
-        }
-        // get element registery
-        let reg = registery()[elid];
-        if (reg === undefined || reg === null) {
-            reg = { chips: {} };
-            registery()[elid] = reg;
-        }
-        // get input element 
-        let input = reg.input;
-        if (input === undefined || input === null) {
-            let inputs = element.getElementsByTagName("input");
-            if (inputs.length > 0) {
-                input = inputs[0]
-            } else {
-                input = null;
-            }
-        }
-        // Try to remove old chip
-        let chipId = data.id
-        if (chipId !== null && chipId !== undefined && reg.chips[chipId]) {
-            removeChip(chipId);
-        }
-
-        let chip = createChip(data);
-        chipId = chip.getAttribute("chip-id");
-        if (input === null) {
-            element.appendChild(chip);
-        } else if (input.parentElement == element) {
-            element.insertBefore(chip, input);
+        const chip = _createChip(data)
+        const input = this.input
+        if (input === null || input === undefined) {
+          this.element.appendChild(chip)
+        } else if (input.parentElement === this.element) {
+          this.element.insertBefore(chip, input)
         } else {
-            element.appendChild(chip);
+          this.element.appendChild(chip)
         }
-        if (reg.chips === undefined || reg.chips === null) {
-            reg.chips = {};
+        this.options.cleanedData.push(data)
+      }
+
+      _setInput () {
+        let input = null
+        if (this.options.input !== null && this.options.input !== undefined) {
+          input = this.options.input
+        } else {
+          const inputs = this.element.getElementsByClassName(this.options.chipInputClass)
+          if (inputs.length > 0) {
+            input = inputs[0]
+          }
         }
-        reg.chips[chipId] = chip;
-        return;
+
+        if (input === null || input === undefined) {
+          if (this.options.createInput) {
+            // create input and append to element
+            input = createChild(
+              'input',
+              { placeholder: this.options.placeholder || '' },
+              [this.options.chipInputClass],
+              this.element
+            )
+          } else {
+            return
+          }
+        }
+        const self = this
+        // set event listener
+        input.addEventListener('focusout', () => {
+          this.element.classList.remove('focus')
+        })
+
+        input.addEventListener('focusin', () => {
+          this.element.classList.add('focus')
+        })
+
+        input.addEventListener('keydown', (e) => {
+          // enter
+          if (e.keyCode === 13) {
+            // Override enter if autocompleting.
+            if (self.options.autocomplete !== undefined &&
+              self.options.autocomplete !== null &&
+              self.options.autocomplete.isShown) {
+              return
+            }
+            if (input.value !== '') {
+              self.addChip({
+                text: input.value
+              })
+            }
+            input.value = ''
+            return false
+          }
+        })
+        return input
+      }
+
+      _setElementListeners () {
+        const self = this
+        this.element.addEventListener('click', () => {
+          self.input.focus()
+        })
+        this.element.addEventListener('keydown', (e) => {
+          if (!e.target.classList.contains(settings().chipClass)) {
+            return
+          }
+
+          if (e.keyCode === 8 || e.keyCode === 46) {
+            self._removeChip(e.target)
+          }
+        })
+      }
+
+      _handleChipClick (e, data) {
+        e.target.focus()
+        e.stopPropagation()
+      }
+
+      _handleChipClose (chip, data) {
+        chip.parentElement.removeChild(chip)
+        for (let index = 0; index < this.options.cleanedData.length; index++) {
+          if (this.options.cleanedData[index] !== undefined && this.options.cleanedData[index] !== null) {
+            if (data.id === this.options.cleanedData[index].id) {
+              delete this.options.cleanedData[index]
+            }
+          }
+        }
+      }
+
+      _removeChip (chip) {
+        let data = {}
+        for (let index = 0; index < this.options.cleanedData.length; index++) {
+          const element = this.options.cleanedData[index]
+          if (element !== undefined && element !== null) {
+            data = this.options.cleanedData[index]
+          }
+        }
+        this._handleChipClose(chip, data)
+      }
     }
 
-    function init(element, options) {
-        // Make copy of the default options,
-        // copy this options to it
-        options = Object.assign(Object.assign({}, settings().OPTIONS), options || {},);
-        element.classList.add(settings().chipsClass);
-        if (element.getAttribute('chips-id') == undefined) {
-            element.setAttribute('chips-id', guid());
-        }
-        let elementId = element.getAttribute('chips-id');
-
-        const Registery = {};
-        registery()[elementId] = Registery;
-        Registery.element = element;
-        Registery.options = options;
-        Registery.input = _set_input(element);
-
-        function _set_input(element) {
-            if (options.hasInput === false) {
-                return;
-            }
-            let input = element.getElementsByTagName('input');
-            if (input.length == 0) {
-                // create input and append to element
-                input = createChild('input', { 'placeholder': options.placeholder || '' }, [settings().chipInputClass], element, options);
-            } else {
-                input = input[0]
-            }
-            // set event listener
-            input.addEventListener('focusout', () => {
-                element.classList.remove('focus');
-            });
-
-            input.addEventListener("keydown", (e) => {
-                // enter
-                if (e.keyCode === 13) {
-                    // Override enter if autocompleting.
-                    if (options.autocomplete !== undefined && options.autocomplete.isShown) {
-                        return;
-                    }
-
-                    e.preventDefault();
-                    if (input.value !== '') {
-                        addChip({
-                            text: input.value,
-                            setCloseBtn: options.setCloseBtn
-
-                        }, element);
-                    }
-                    input.value = '';
-                    return false;
-                }
-            });
-            return input;
-        }
-
-
-        function _handleChipClick(_element) {
-            _element.addEventListener('click', (e) => {
-                e.preventDefault();
-                let target = e.target;
-                if (target.classList.contains(settings().chipsClass)) {
-                    if (Registery.input !== undefined && Registery.input !== null) {
-                        Registery.input.focus();
-                    }
-                    element.classList.add('focus');
-                } else if (target.classList.contains(settings().chipInputClass)) {
-                    target.focus();
-                    element.classList.add('focus');
-
-                } else if (target.classList.contains(settings().chipClass)) {
-                    target.focus();
-
-                } else if (target.classList.contains(settings().closeClass)) {
-                    let chip = closest(target, settings().chipClass);
-                    removeChip(chip.getAttribute("chip-id"));
-                }
-            });
-        }
-
-        function _handleDelete(_element) {
-
-            _element.addEventListener("keydown", (e) => {
-                if (!e.target.classList.contains(settings().chipClass)) {
-                    return;
-                }
-
-                if (e.keyCode == 8 || e.keyCode == 46) {
-                    let id = e.target.getAttribute("chip-id");
-                    removeChip(id);
-                }
-            });
-        }
-
-        // Event listeners
-        function _setupEventHandlers() {
-            _handleChipClick(element);
-            _handleDelete(element);
-        }
-
-        // Fill initial data
-        if (options.data != undefined) {
-            for (let index = 0; index < options.data.length; index++) {
-                const chipData = options.data[index]; // Object.assign(Object.assign({}, settings().chipData), 
-                addChip(chipData, element);
-            }
-        }
-
-        _setupEventHandlers();
+    function init (element, options) {
+      return new ChipsElement(element, options)
     }
-})();
+  }
+)()
