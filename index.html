@@ -31,8 +31,7 @@
         <div class="chips autocomplete">
             <input id="myInput" class="chip-input" type="text">
         </div>
-        <script src="./chips.js"></script>
-        <script src="./autocomplete.js"></script>
+        <script src="dist/bundle.js"></script>
         <script>
             var brands = [
                 "Apple",
@@ -44,9 +43,9 @@
         </script>
         <script>
             let ele = document.querySelector(".chips.autocomplete");
-            let chips;
+            let chips = null;
 
-            let autocomplete = window.autocomplete.init(
+            let autocomplete = new juis.Autocomplete(
                 document.getElementsByClassName("chip-input")[0],
                 brands,
                 {
@@ -61,7 +60,7 @@
                 });
 
 
-            chips = new Chips(ele, [
+            chips = new juis.Chips(ele, [
                 {
                     text: "Apple",
                     image: "https://pbs.twimg.com/profile_images/1283958620359516160/p7zz5dxZ_400x400.jpg",
@@ -83,7 +82,7 @@
             ],
                 {
                     setCloseBtn: true,
-                    // autocomplete: autocomplete
+                    autocomplete: autocomplete
                 });
 
             function showDropdown (e) {
