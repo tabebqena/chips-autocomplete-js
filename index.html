@@ -61,26 +61,30 @@
                 });
 
 
-            chips = Chips.init(ele, {
-                data: [
-                    {
-                        text: "Apple",
-                        image: "https://pbs.twimg.com/profile_images/1283958620359516160/p7zz5dxZ_400x400.jpg",
-                        onclick: () => {
-                            window.location.href = "https://pbs.twimg.com/profile_images/1283958620359516160/p7zz5dxZ_400x400.jpg"
-                        },
-                        close: true
+            chips = new Chips(ele, [
+                {
+                    text: "Apple",
+                    image: "https://pbs.twimg.com/profile_images/1283958620359516160/p7zz5dxZ_400x400.jpg",
+                    onclick: (e, chip, data) => {
+                        console.log("clicked", e, chip, data);
+                        // window.location.href = "https://pbs.twimg.com/profile_images/1283958620359516160/p7zz5dxZ_400x400.jpg"
                     },
-                    {
-                        text: "Microsoft",
-                        image: "https://pbs.twimg.com/profile_images/1268192314192613378/SM4qrCnM_400x400.png",
-                        close: true
+                    onclose: (e, chip, data) => {
+                        console.log("closed", e, chip, data);
                     },
+                    close: true
+                },
+                {
+                    text: "Microsoft",
+                    image: "https://pbs.twimg.com/profile_images/1268192314192613378/SM4qrCnM_400x400.png",
+                    close: true
+                },
 
-                ],
-                setCloseBtn: true,
-                autocomplete: autocomplete
-            });
+            ],
+                {
+                    setCloseBtn: true,
+                    // autocomplete: autocomplete
+                });
 
             function showDropdown (e) {
 
