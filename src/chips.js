@@ -108,7 +108,7 @@ function initChips() {
 
   function Chips(element, data, options) {
     this.options = assign({}, DEFAULT_SETTINGS, options || {});
-    this.data = data;
+    this.data = data || [];
     this._data = [];
     this.element = element;
     element.classList.add(this.options.chipsClass);
