@@ -4,7 +4,7 @@
   "description": "Version: 0.0.1-dev ==================",
   "main": "index.js",
   "scripts": {
-    "build": "browserify  src/index.js -o dist/bundle.js --debug",
+    "build": "browserify  src/index.js -o dist/juis.js --debug",
     "test": "echo \"Error: no test specified\" && exit 1",
     "serve": "http-server ."
   },
