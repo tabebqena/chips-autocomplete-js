@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #f1f1f1;
+    }
+
+    #regForm {
+      background-color: #ffffff;
+      margin: 100px auto;
+      font-family: Raleway;
+      padding: 40px;
+      width: 70%;
+      min-width: 300px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    input {
+      padding: 10px;
+      width: 100%;
+      font-size: 17px;
+      font-family: Raleway;
+      border: 1px solid #aaaaaa;
+    }
+
+
+    button {
+      background-color: #04AA6D;
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 17px;
+      font-family: Raleway;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.8;
+    }
+
+    < !-- .prev-btn {
+      background-color: #bbbbbb;
+    }
+
+    -->
+
+    /* Make circles that indicate the steps of the form: */
+    .step-indicator {
+      height: 15px;
+      width: 15px;
+      margin: 0 2px;
+      background-color: #bbbbbb;
+      border: none;
+      border-radius: 50%;
+      display: inline-block;
+      opacity: 0.5;
+    }
+
+    .step-indicator.active {
+      opacity: 1;
+    }
+
+    /* Mark the steps that are finished and valid: */
+    .step-indicator.finish {
+      background-color: #04AA6D;
+    }
+  </style>
+
+  <body>
+
+    <form id="regForm" action="/action_page.php">
+      <div>
+        <h1>Register:</h1>
+        <!-- One "form-step" for each step in the form: -->
+        <div class="form-step">Name:
+          <p><input placeholder="First name..." min="5" name="fname"></p>
+          <p><input placeholder="Last name..." min="5" name="lname"></p>
+        </div>
+        <div class="form-step">Contact Info:
+          <p><input placeholder="E-mail..." name="femail">
+          </p>
+          <p><input placeholder="Phone..." oninput="this.className = ''" name="phone"></p>
+        </div>
+        <div class="form-step">Birthday:
+          <p><input placeholder="dd" oninput="this.className = ''" name="dd"></p>
+          <p><input placeholder="mm" oninput="this.className = ''" name="nn"></p>
+          <p><input placeholder="yyyy" oninput="this.className = ''" name="yyyy"></p>
+        </div>
+        <div class="form-step">Login Info:
+          <p><input placeholder="Username..." oninput="this.className = ''" name="uname"></p>
+          <p><input placeholder="Password..." oninput="this.className = ''" name="pword" type="password"></p>
+        </div>
+      </div>
+      <button type="submit" id="submit-btn" class="" style="display: none">Submit</button>
+
+    </form>
+    <!-- -->
+    <div class="btn-bar" style="overflow:auto;">
+      <div style="float:right;">
+        <button id="prev-btn" type="button" class="prev-btn">Previous</button>
+        <button id="next-btn" type="button" class="next-btn">Next</button>
+      </div>
+    </div>
+    <!-- Circles which indicates the steps of the form: -->
+    <div class="step-bar" style="text-align:center;margin-top:40px;">
+      <div class="step-indicator"></div>
+      <div class="step-indicator"></div>
+      <div class="step-indicator"></div>
+      <div class="step-indicator"></div>
+    </div>
+    <script src="./dist/juis.js"></script>
+    <script>
+
+
+      document.addEventListener("DOMContentLoaded", () => {
+        let forms = document.getElementsByTagName("form")
+        let nextBtn = document.getElementById("next-btn");
+        let prevBtn = document.getElementById("prev-btn");
+        let submitBtn = document.getElementById("submit-btn");
+
+        for (var x = 0; x < forms.length; x++) {
+          let form = forms[x]
+
+          let onStepShown = (msf, currentStep) => {
+
+            var i, indicators = document.getElementsByClassName("step-indicator");
+            for (i = 0; i < indicators.length; i++) {
+              indicators[i].classList.remove("active");
+            }
+            if (currentStep > 0) {
+              if (indicators[currentStep - 1]) {
+                indicators[currentStep - 1].classList.add("finish");
+              }
+              for (i = currentStep; i < indicators.length; i++) {
+                indicators[i].classList.remove("finish");
+              }
+            }
+            //... and adds the "active" class on the current step:
+            if (indicators[currentStep]) {
+              indicators[currentStep].classList.add("active");
+            }
+          }
+
+          window.multi = new juis.MSF(form, { onStepShown: onStepShown, submitOnEnd: true });
+          nextBtn.onclick = () => {
+            multi.showNext();
+          }
+          prevBtn.onclick = () => {
+            multi.showPrev();
+          }
+
+        }
+      });
+
+    </script>
+  </body>
+
+</html>
