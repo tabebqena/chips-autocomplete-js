@@ -123,6 +123,7 @@ function initMSF() {
     this.showPrev = this._showPrev.bind(this);
     this.showFirst = this._showFirst.bind(this);
     this.getCurrentStep = this._getCurrentStep.bind(this);
+    this.isLastStep = this._isLastStep.bind(this);
 
     this.initial();
     this.showFirst();
@@ -146,7 +147,6 @@ function initMSF() {
 
   MultiStepForm.prototype._initial = function () {
     var self = this;
-    console.log(this.options);
     // Hide all
     for (var x = 0; x < this.formSteps.length; x++) {
       this.options.hideFun(this.formSteps[x]);
@@ -214,7 +214,6 @@ function initMSF() {
       !this.reportValidity(this.formSteps[currentStep])
     )
       return false;
-    console.log(this, typeof this, this.options);
     // if you have reached the end of the form...
     if (targetStep >= this.stepLength) {
       if (this.options.submitOnEnd) {
@@ -278,7 +277,7 @@ function initMSF() {
   };
 
   MultiStepForm.prototype._isLastStep = function () {
-    return this.options.getCurrentStep();
+    return this.options.getCurrentStep() === this.stepLength - 1;
   };
 
   return MultiStepForm;
