@@ -230,10 +230,9 @@ function initMSF() {
       }
       // Show current
       this.options.showFun(this.formSteps[targetStep]);
-      call(this.options.onStepShown, targetStep);
-      //... and run a function that will display the correct step indicator:
-
+      // store the correct currentStep
       this.options.storeCurrentStep(targetStep);
+      call(this.options.onStepShown, targetStep);
     }
   };
 
