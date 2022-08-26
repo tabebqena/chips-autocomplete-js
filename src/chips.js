@@ -193,7 +193,7 @@ function initChips() {
     } else {
       this.element.appendChild(chip);
     }
-    // Avoid infinte loop, if recurssively add data to thethis.data while render is terating
+    // Avoid infinte loop, if recurssively add data to the this.data while render is terating
     // over it.
     if (data._index !== undefined && data._index !== null) {
       var index = data._index;
@@ -205,7 +205,7 @@ function initChips() {
 
     this._data.push(distData);
     if (this.options.onchange !== null && this.options.onchange !== undefined) {
-      this.options.onchange(this.data);
+      this.options.onchange(this.getData());
     }
     return data;
   };
@@ -315,7 +315,7 @@ function initChips() {
         this.options.onchange !== null &&
         this.options.onchange !== undefined
       ) {
-        this.options.onchange(this.data);
+        this.options.onchange(this.getData());
       }
     }
   };
