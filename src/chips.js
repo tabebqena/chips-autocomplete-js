@@ -10,7 +10,6 @@ function initChips() {
     chipClass: "chip",
     closeClass: "chip-close",
     chipInputClass: "chip-input",
-    setCloseBtn: false,
     imageWidth: 96,
     imageHeight: 96,
     close: true,
