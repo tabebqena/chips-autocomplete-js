@@ -15,6 +15,7 @@ function initChips() {
     close: true,
     onclick: null,
     onclose: null,
+    onchange: null,
   };
 
   var chipData = {
@@ -203,6 +204,9 @@ function initChips() {
     }
 
     this._data.push(distData);
+    if (this.options.onchange !== null && this.options.onchange !== undefined) {
+      this.options.onchange(this._data);
+    }
     return data;
   };
 
@@ -306,6 +310,12 @@ function initChips() {
       chip.parentElement.removeChild(chip);
       if (data.onclose !== undefined && data.onclose !== null) {
         data.onclose(e, chip, data);
+      }
+      if (
+        this.options.onchange !== null &&
+        this.options.onchange !== undefined
+      ) {
+        this.options.onchange(this._data);
       }
     }
   };
