@@ -205,7 +205,7 @@ function initChips() {
 
     this._data.push(distData);
     if (this.options.onchange !== null && this.options.onchange !== undefined) {
-      this.options.onchange(this._data);
+      this.options.onchange(this.data);
     }
     return data;
   };
@@ -315,7 +315,7 @@ function initChips() {
         this.options.onchange !== null &&
         this.options.onchange !== undefined
       ) {
-        this.options.onchange(this._data);
+        this.options.onchange(this.data);
       }
     }
   };
