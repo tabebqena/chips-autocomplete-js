@@ -42,7 +42,10 @@ To use this multi step form
   - `options.extravalidators` : this object map form field id to a single function that should validate it.
                                 the function will recieve the HTMLElement as single argument & should return `true`
                                 if validation success or `false` if failed.
-  */
+- exclude element from usual validation:
+  - `options.noValidate` : array of element id that will skip usual validation. 
+  They still can be validated by extravalidators.
+*/
 
 // eslint-disable-next-line no-undef
 var assign = require("./utils").assign;
@@ -61,6 +64,8 @@ function initMSF() {
     alterSubmitBtn: null, // [ 'next', 'null'. null, 'hide']
     submitOnEnd: false,
     extraValidators: {},
+    noValidate: [],
+    validatableTags: ["input", "select", "textarea"],
   };
 
   function call(fn) {
@@ -164,7 +169,6 @@ function initMSF() {
 
   MultiStepForm.prototype._reportValidity = function (ele) {
     // report validity of the current step & its children
-    var rv = true;
 
     function callExtraValidator(_element, validators) {
       if (
@@ -185,19 +189,36 @@ function initMSF() {
       return validator(_element);
     }
 
-    for (var i = 0; i < ele.childNodes.length; i++) {
-      var child = ele.childNodes[i];
-      rv =
-        rv &&
-        this.reportValidity(child) &&
-        callExtraValidator(child, this.options.extraValidators);
+    var rv = true;
+    var validatables = [];
+    for (var i = 0; i < this.options.validatableTags.length; i++) {
+      var elems = ele.querySelectorAll(this.options.validatableTags[i]);
+      for (var i2 = 0; i2 < elems.length; i2++) {
+        var elem = elems[i2];
+        if (elem.reportValidity !== undefined && elem.reportValidity !== null) {
+          validatables.push(elem);
+        }
+      }
     }
-    if (ele.reportValidity != undefined) {
-      rv =
-        rv &&
-        ele.reportValidity() &&
-        callExtraValidator(ele, this.options.extraValidators);
+    for (var index = 0; index < validatables.length; index++) {
+      if (
+        this.options.noValidate.indexOf(
+          validatables[index].getAttribute("id")
+        ) === -1
+      ) {
+        rv =
+          rv &&
+          validatables[index].reportValidity() &&
+          callExtraValidator(validatables[index], this.options.extraValidators);
+        console.log(rv);
+      } else {
+        rv =
+          rv &&
+          callExtraValidator(validatables[index], this.options.extraValidators);
+        console.log(rv);
+      }
     }
+
     return rv;
   };
 

@@ -2,6 +2,7 @@
 <html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+  <script src="./dist/juis.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -82,8 +83,8 @@
         <h1>Register:</h1>
         <!-- One "form-step" for each step in the form: -->
         <div class="form-step">Name:
-          <p><input placeholder="First name..." min="5" name="fname"></p>
-          <p><input placeholder="Last name..." min="5" name="lname"></p>
+          <p><input placeholder="First name..." min="5" required name="fname"></p>
+          <p><input id="lname" placeholder="Last name..." min="5" required name="lname"></p>
         </div>
         <div class="form-step">Contact Info:
           <p><input placeholder="E-mail..." name="femail">
@@ -117,7 +118,7 @@
       <div class="step-indicator"></div>
       <div class="step-indicator"></div>
     </div>
-    <script src="./dist/juis.js"></script>
+
     <script>
 
 
@@ -150,7 +151,7 @@
             }
           }
 
-          window.multi = new juis.MSF(form, { onStepShown: onStepShown, submitOnEnd: true });
+          window.multi = new juis.MSF(form, { onStepShown: onStepShown, submitOnEnd: true, noValidate: ["lname"] });
           nextBtn.onclick = () => {
             multi.showNext();
           }
