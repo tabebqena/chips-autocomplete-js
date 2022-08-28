@@ -66,6 +66,7 @@ function initMSF() {
     extraValidators: {},
     noValidate: [],
     validatableTags: ["input", "select", "textarea"],
+    validateFun: null,
   };
 
   function call(fn) {
@@ -147,6 +148,8 @@ function initMSF() {
       this.options.showFun || this._defaultShowFun.bind(this);
     this.options.hideFun =
       this.options.hideFun || this._defaultHideFun.bind(this);
+    this.options.validateFun =
+      this.options.validateFun || this._defaultValidateFun.bind(this);
     return this.options;
   };
 
@@ -165,6 +168,14 @@ function initMSF() {
 
   MultiStepForm.prototype._submit = function () {
     return this.options.submitFun();
+  };
+
+  MultiStepForm.prototype._defaultValidateFun = function (element) {
+    try {
+      return element.reportValidity();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   MultiStepForm.prototype._reportValidity = function (ele) {
@@ -194,28 +205,14 @@ function initMSF() {
     for (var i = 0; i < this.options.validatableTags.length; i++) {
       var elems = ele.querySelectorAll(this.options.validatableTags[i]);
       for (var i2 = 0; i2 < elems.length; i2++) {
-        var elem = elems[i2];
-        if (elem.reportValidity !== undefined && elem.reportValidity !== null) {
-          validatables.push(elem);
-        }
+        validatables.push(elems[i2]);
       }
     }
     for (var index = 0; index < validatables.length; index++) {
-      if (
-        this.options.noValidate.indexOf(
-          validatables[index].getAttribute("id")
-        ) === -1
-      ) {
-        rv =
-          rv &&
-          validatables[index].reportValidity() &&
-          callExtraValidator(validatables[index], this.options.extraValidators);
-        console.log(rv);
-      } else {
-        rv =
-          rv &&
-          callExtraValidator(validatables[index], this.options.extraValidators);
-        console.log(rv);
+      var elem = validatables[index];
+      rv = rv && callExtraValidator(elem, this.options.extraValidators);
+      if (this.options.noValidate.indexOf(elem.getAttribute("id")) === -1) {
+        rv = rv && this.options.validateFun(elem);
       }
     }
 
