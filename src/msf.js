@@ -116,17 +116,6 @@ function initMSF() {
    */
   function MultiStepForm(form, options) {
     this.form = form;
-    this.options = this._fixOptions(options);
-    this.formSteps = this.form.getElementsByClassName(
-      this.options.formStepClass
-    );
-    this.stepLength = this.formSteps.length;
-
-    if (this.formSteps.length === 0) {
-      throw Error(
-        "Your form has no step defined by class: " + this.options.formStepClass
-      );
-    }
     this.currentStep = 0;
     this.initial = this._initial.bind(this);
     this.submit = this._submit.bind(this);
@@ -137,6 +126,19 @@ function initMSF() {
     this.showFirst = this._showFirst.bind(this);
     this.getCurrentStep = this._getCurrentStep.bind(this);
     this.isLastStep = this._isLastStep.bind(this);
+    this.fixOptions = this._fixOptions.bind(this);
+
+    this.options = this.fixOptions(options);
+    this.formSteps = this.form.getElementsByClassName(
+      this.options.formStepClass
+    );
+    this.stepLength = this.formSteps.length;
+
+    if (this.formSteps.length === 0) {
+      throw Error(
+        "Your form has no step defined by class: " + this.options.formStepClass
+      );
+    }
 
     this.initial();
     this.showFirst();
