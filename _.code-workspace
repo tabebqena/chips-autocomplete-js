@@ -1,0 +1,46 @@
+{
+    "extensions": {
+        "recommendations": [
+            "baileyfirman.vscode-back-forward-buttons",
+        ]
+    },
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "[html]": {
+            "editor.defaultFormatter": "vscode.html-language-features"
+        },
+        "[json]": {
+            "editor.defaultFormatter": "vscode.json-language-features"
+        },
+        "diffEditor.ignoreTrimWhitespace": false,
+        "git.autofetch": true,
+        "html.format.contentUnformatted": "pre,code,textarea",
+        "html.format.indentHandlebars": true,
+        "html.format.indentInnerHtml": true,
+        
+        "time-tracker.reminders": "[{\"title\": \"Blink\",\"intervalMinutes\": 50,\"pauseMinutes\": 0,\"autoPause\": true,\"showCountDown\": true,\"autoStartAfterPause\": true},{\"title\": \"Look at distance\",\"intervalMinutes\": 180,\"pauseMinutes\": 0,\"autoPause\": true,\"showCountDown\": true,\"autoStartAfterPause\": true}]",
+        "time-tracker.showFromStartTime": true,
+        "time-tracker.showTotalTime": true,
+        "window.zoomLevel": 0,
+        "workbench.editorAssociations": {
+            "*.ipynb": "jupyter.notebook.ipynb"
+        },
+        "editor.formatOnSave": true,
+        "typescript.format.insertSpaceAfterTypeAssertion": true,
+        "files.autoSave": "onFocusChange",
+        "eslint.validate": [ "javascript", "javascriptreact",  "typescriptreact" ],
+        "editor.tabSize": 2,
+        "eslint.alwaysShowStatus": true,
+        "javascript.format.insertSpaceBeforeFunctionParenthesis": true,
+        "prettier.prettierignore": [
+            "html"
+        ],
+      
+
+
+    }
+}

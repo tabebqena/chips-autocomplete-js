@@ -22,10 +22,9 @@
   "devDependencies": {
     "eslint": "^8.22.0",
     "eslint-plugin-es5": "^1.5.0",
-    "prettier": "2.7.1"
-  },
-  "dependencies": {
+    "prettier": "2.7.1",
     "jsdocs": "^1.0.0",
     "watchify": "^4.0.0"
-  }
+  },
+  "dependencies": {}
 }

@@ -1,4 +1,32 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: msf.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: msf.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * @namespace msf
  */
 // eslint-disable-next-line no-undef
@@ -31,14 +59,14 @@ function initMSF() {
    - default is `form.submit()` 
    * @property {function} defaults.submitOnEnd  - * whether to submit the form if showNext is called on the last step or not.
    * This will be beneficial if you have "alterSubmitBtn='next'"
-   * If this option is `false` (default) & the `showNext()` method called, exception will be thrown.
+   * If this option is `false` (default) &amp; the `showNext()` method called, exception will be thrown.
    * @property {function} defaults.alterSubmitBtn  - * If you create submit button in your form, You should specify valid value for this option.
    * Choices are: 'next', null, 'hide'
    * - next: means that clicking the submit button will show the next step.
    * - hide: means that the submit button will be hidden
    * - null: the submit button will be left unchaged.
    * @property {object} defaults.extraValidators  - *  this object map form field id to a single function that should validate it.
-      the function will recieve the HTMLElement as single argument & should return `true`
+      the function will recieve the HTMLElement as single argument &amp; should return `true`
       if validation success or `false` if failed.
   * @property {array} defaults.noValidate  -list of element id`s that will escape from validation.
   * @property {function } defaults.validateFun  - * The usual validator function that should run on all elements that thir id`s not in `noValidate`
@@ -76,14 +104,14 @@ function initMSF() {
     var inputElements = form.getElementsByTagName("input");
     var buttonElements = form.getElementsByTagName("button");
     var submitBtn = undefined;
-    for (var index = 0; index < inputElements.length; index++) {
+    for (var index = 0; index &lt; inputElements.length; index++) {
       if (inputElements[index].getAttribute("type") == "submit") {
         submitBtn = inputElements[index];
         break;
       }
     }
     if (submitBtn == undefined) {
-      for (index = 0; index < buttonElements.length; index++) {
+      for (index = 0; index &lt; buttonElements.length; index++) {
         if (buttonElements[index].getAttribute("type") == "submit") {
           submitBtn = buttonElements[index];
           break;
@@ -162,7 +190,7 @@ function initMSF() {
   MultiStepForm.prototype._initial = function () {
     var self = this;
     // Hide all
-    for (var x = 0; x < this.formSteps.length; x++) {
+    for (var x = 0; x &lt; this.formSteps.length; x++) {
       this.options.hideFun(this.formSteps[x]);
     }
 
@@ -185,7 +213,7 @@ function initMSF() {
   };
 
   MultiStepForm.prototype._reportValidity = function (ele) {
-    // report validity of the current step & its children
+    // report validity of the current step &amp; its children
 
     function callExtraValidator(_element, validators) {
       if (
@@ -208,17 +236,17 @@ function initMSF() {
 
     var rv = true;
     var validatables = [];
-    for (var i = 0; i < this.options.validatableTags.length; i++) {
+    for (var i = 0; i &lt; this.options.validatableTags.length; i++) {
       var elems = ele.querySelectorAll(this.options.validatableTags[i]);
-      for (var i2 = 0; i2 < elems.length; i2++) {
+      for (var i2 = 0; i2 &lt; elems.length; i2++) {
         validatables.push(elems[i2]);
       }
     }
-    for (var index = 0; index < validatables.length; index++) {
+    for (var index = 0; index &lt; validatables.length; index++) {
       var elem = validatables[index];
-      rv = rv && callExtraValidator(elem, this.options.extraValidators);
+      rv = rv &amp;&amp; callExtraValidator(elem, this.options.extraValidators);
       if (this.options.noValidate.indexOf(elem.getAttribute("id")) === -1) {
-        rv = rv && this.options.validateFun(elem);
+        rv = rv &amp;&amp; this.options.validateFun(elem);
       }
     }
 
@@ -227,14 +255,14 @@ function initMSF() {
 
   MultiStepForm.prototype._moveTo = function (targetStep) {
     // This function will figure out which form-step to display
-    if (targetStep < 0) {
+    if (targetStep &lt; 0) {
       return false;
     }
     var currentStep = this.getCurrentStep();
     // Exit the function if any field in the current form-step is invalid:
     // and wants to go next
     if (
-      targetStep > currentStep &&
+      targetStep > currentStep &amp;&amp;
       !this.reportValidity(this.formSteps[currentStep])
     )
       return false;
@@ -244,11 +272,11 @@ function initMSF() {
         return this.submit();
       } else {
         throw Error(
-          "Nothing to do, This is the last step & you pass `options.submitOnEnd`== false"
+          "Nothing to do, This is the last step &amp; you pass `options.submitOnEnd`== false"
         );
       }
     } else {
-      if (currentStep !== undefined && currentStep !== null) {
+      if (currentStep !== undefined &amp;&amp; currentStep !== null) {
         this.options.hideFun(this.formSteps[currentStep]);
         call(this.options.onStepHide, currentStep);
       }
@@ -308,3 +336,26 @@ function initMSF() {
 
 // eslint-disable-next-line no-undef
 module.exports = initMSF;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="msf.html">msf</a></li></ul><h3>Classes</h3><ul><li><a href="msf.MultiStepForm.html">MultiStepForm</a></li></ul><h3>Global</h3><ul><li><a href="global.html#guid">guid</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Sat Jan 28 2023 20:01:15 GMT+0300 (Arabian Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
