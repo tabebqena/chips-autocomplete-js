@@ -108,6 +108,7 @@ function initMSF() {
   }
 
   function MultiStepForm(form, options) {
+    
     this.form = form;
     this.options = this._fixOptions(options);
     this.formSteps = this.form.getElementsByClassName(
