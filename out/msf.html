@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Namespace: msf</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Namespace: msf</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>msf</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="msf.js.html">msf.js</a>, <a href="msf.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="msf.MultiStepForm.html">MultiStepForm</a></dt>
+            <dd></dd>
+        </dl>
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id=".defaults"><span class="type-signature">(static) </span>defaults<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    defaults
+</div>
+
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>defaults.formStepClass</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the class name that identify the form step element</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>defaults.getCurrentStep</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">function to get the current step, it should return `int`
+     - deafult is the `MultiStepForm._defaultGetCurrentStep` that returns `MultiStepForm.currentStep` property.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>defaults.storeCurrentStep</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Store the current step value.
+     - default is `MultiStepForm._defaultStoreCurrentStep` that stores the value in the `MultiStepForm.cuurentStep`</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>defaults.onStepShown</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">function that called after the step shown, recieves the shown step index.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>defaults.onStepHide</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">function that called after the step hidden, recieves the hidden step index.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>defaults.hideFun</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The function that actually hide step elemets, recieves the HTML element as single parameter
+                                            - default action is done by applying "display:'none'""</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>defaults.showFun</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The function that actually show step elemets, recieves the HTML element as single parameter
+                                            - default action is done by applying "display:'block'""</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>defaults.submitFun</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The function that acutually submit the form after the last step.
+   - It recieves no parameters.
+   - default is `form.submit()`</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>defaults.submitOnEnd</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">* whether to submit the form if showNext is called on the last step or not.
+This will be beneficial if you have "alterSubmitBtn='next'"
+If this option is `false` (default) & the `showNext()` method called, exception will be thrown.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>defaults.alterSubmitBtn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">* If you create submit button in your form, You should specify valid value for this option.
+Choices are: 'next', null, 'hide'
+- next: means that clicking the submit button will show the next step.
+- hide: means that the submit button will be hidden
+- null: the submit button will be left unchaged.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>defaults.extraValidators</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">*  this object map form field id to a single function that should validate it.
+      the function will recieve the HTMLElement as single argument & should return `true`
+      if validation success or `false` if failed.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>defaults.noValidate</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">list of element id`s that will escape from validation.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>defaults.validateFun</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">* The usual validator function that should run on all elements that thir id`s not in `noValidate`
+This function recieves the element to validate.
+default is `element.reportValidity()`</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="msf.js.html">msf.js</a>, <a href="msf.js.html#line48">line 48</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".initMSF"><span class="type-signature">(static) </span>initMSF<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="msf.MultiStepForm.html">msf.MultiStepForm</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    init multi step form
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Element</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the form HTMLElement</td>
+        </tr>
+
+    
+
+        <tr>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the options <a href="msf.html#.defaults">msf.defaults</a></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="msf.js.html">msf.js</a>, <a href="msf.js.html#line15">line 15</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="msf.MultiStepForm.html">msf.MultiStepForm</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="msf.html">msf</a></li></ul><h3>Classes</h3><ul><li><a href="msf.MultiStepForm.html">MultiStepForm</a></li></ul><h3>Global</h3><ul><li><a href="global.html#guid">guid</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Sat Jan 28 2023 20:12:53 GMT+0300 (Arabian Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

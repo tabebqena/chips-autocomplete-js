@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: msf.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: msf.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @namespace msf
+ */
+// eslint-disable-next-line no-undef
+var assign = require("./utils").assign;
+
+/**
+ * init multi step form
+ * @memberof msf
+ * @function
+ * @param {Element}  - the form HTMLElement
+ * @param {object} - the options {@link msf.defaults}
+ * @return {msf.MultiStepForm}
+ */
+function initMSF() {
+  /** defaults 
+   * @memberof msf
+   * @property {string}  defaults.formStepClass         - the class name that identify the form step element
+   * @property {function}  defaults.getCurrentStep      - function to get the current step, it should return `int`
+     - deafult is the `MultiStepForm._defaultGetCurrentStep` that returns `MultiStepForm.currentStep` property.
+   * @property {function}  defaults.storeCurrentStep  - Store the current step value.
+     - default is `MultiStepForm._defaultStoreCurrentStep` that stores the value in the `MultiStepForm.cuurentStep`
+   * @property {function} defaults.onStepShown  - function that called after the step shown, recieves the shown step index.
+   * @property {function} defaults.onStepHide   - function that called after the step hidden, recieves the hidden step index.
+   * @property {function} defaults.hideFun  - The function that actually hide step elemets, recieves the HTML element as single parameter
+                                            - default action is done by applying "display:'none'""  
+   * @property {function} defaults.showFun -  The function that actually show step elemets, recieves the HTML element as single parameter
+                                            - default action is done by applying "display:'block'""
+    * @property {function } defaults.submitFun   -  The function that acutually submit the form after the last step.
+   - It recieves no parameters.
+   - default is `form.submit()` 
+   * @property {function} defaults.submitOnEnd  - * whether to submit the form if showNext is called on the last step or not.
+   * This will be beneficial if you have "alterSubmitBtn='next'"
+   * If this option is `false` (default) &amp; the `showNext()` method called, exception will be thrown.
+   * @property {function} defaults.alterSubmitBtn  - * If you create submit button in your form, You should specify valid value for this option.
+   * Choices are: 'next', null, 'hide'
+   * - next: means that clicking the submit button will show the next step.
+   * - hide: means that the submit button will be hidden
+   * - null: the submit button will be left unchaged.
+   * @property {object} defaults.extraValidators  - *  this object map form field id to a single function that should validate it.
+      the function will recieve the HTMLElement as single argument &amp; should return `true`
+      if validation success or `false` if failed.
+  * @property {array} defaults.noValidate  -list of element id`s that will escape from validation.
+  * @property {function } defaults.validateFun  - * The usual validator function that should run on all elements that thir id`s not in `noValidate`
+   * This function recieves the element to validate.
+   * default is `element.reportValidity()`
+   */
+  var defaults = {
+    formStepClass: "form-step",
+    getCurrentStep: null,
+    storeCurrentStep: null,
+    onStepShown: null,
+    onStepHide: null,
+    hideFun: null,
+    showFun: null,
+    submitFun: null,
+    alterSubmitBtn: null, // [ 'next', 'null'. null, 'hide']
+    submitOnEnd: false,
+    extraValidators: {},
+    noValidate: [],
+    validatableTags: ["input", "select", "textarea"],
+    validateFun: null,
+  };
+
+  function call(fn) {
+    if (fn === undefined || fn === null) {
+      return;
+    }
+    return fn.apply(this, Array.prototype.slice.call(arguments, 1));
+  }
+
+  function alterSubmitBtn(form, strategy, callback) {
+    if (strategy === null || strategy === "null") {
+      return;
+    }
+    var inputElements = form.getElementsByTagName("input");
+    var buttonElements = form.getElementsByTagName("button");
+    var submitBtn = undefined;
+    for (var index = 0; index &lt; inputElements.length; index++) {
+      if (inputElements[index].getAttribute("type") == "submit") {
+        submitBtn = inputElements[index];
+        break;
+      }
+    }
+    if (submitBtn == undefined) {
+      for (index = 0; index &lt; buttonElements.length; index++) {
+        if (buttonElements[index].getAttribute("type") == "submit") {
+          submitBtn = buttonElements[index];
+          break;
+        }
+      }
+    }
+    if (strategy == "next") {
+      if (submitBtn != undefined) {
+        submitBtn.addEventListener("click", callback);
+        submitBtn.addEventListener("submit", callback);
+      }
+    } else if (strategy == "hide") {
+      submitBtn.style.display = "none";
+    }
+  }
+
+  /** MultiStepForm
+   * @class
+   * @memberof msf
+   * @param {Element} form the form element
+   * @param {object} options options, see `{@link msf.defaults}` documentations.
+   * @property {number} currentStep - the current step
+   * @property {Function} submit - The submit method
+   * @property {Function} moveTo - move to method, accept the step index to move to it.
+   * @property {Function} showNext - move to the next step.
+   * @property {Function} showPrev - move to the previous step.
+   * @property {Function} showFirst - move to the first step.
+   * @property {Function} getCurrentStep - returns the current step index.
+   * @property {Function} isLastStep - returns `true` if the current step is the last one.
+   */
+  function MultiStepForm(form, options) {
+    this.form = form;
+    this.options = this._fixOptions(options);
+    this.formSteps = this.form.getElementsByClassName(
+      this.options.formStepClass
+    );
+    this.stepLength = this.formSteps.length;
+
+    if (this.formSteps.length === 0) {
+      throw Error(
+        "Your form has no step defined by class: " + this.options.formStepClass
+      );
+    }
+    this.currentStep = 0;
+    this.initial = this._initial.bind(this);
+    this.submit = this._submit.bind(this);
+    this.reportValidity = this._reportValidity.bind(this);
+    this.moveTo = this._moveTo.bind(this);
+    this.showNext = this._showNext.bind(this);
+    this.showPrev = this._showPrev.bind(this);
+    this.showFirst = this._showFirst.bind(this);
+    this.getCurrentStep = this._getCurrentStep.bind(this);
+    this.isLastStep = this._isLastStep.bind(this);
+
+    this.initial();
+    this.showFirst();
+  }
+  MultiStepForm.prototype._fixOptions = function (options) {
+    options = options || {};
+    this.options = assign({}, defaults, options);
+    this.options.getCurrentStep =
+      this.options.getCurrentStep || this._defaultGetCurrentStep.bind(this);
+    this.options.storeCurrentStep =
+      this.options.storeCurrentStep || this._defaultStoreCurrentStep.bind(this);
+    this.options.submitFun =
+      this.options.submitFun || this._defaultSubmit.bind(this);
+    this.options.showFun =
+      this.options.showFun || this._defaultShowFun.bind(this);
+    this.options.hideFun =
+      this.options.hideFun || this._defaultHideFun.bind(this);
+    this.options.validateFun =
+      this.options.validateFun || this._defaultValidateFun.bind(this);
+    return this.options;
+  };
+
+  MultiStepForm.prototype._initial = function () {
+    var self = this;
+    // Hide all
+    for (var x = 0; x &lt; this.formSteps.length; x++) {
+      this.options.hideFun(this.formSteps[x]);
+    }
+
+    alterSubmitBtn(this.form, this.options.alterSubmitBtn, function (event) {
+      event.preventDefault();
+      self.showNext();
+    });
+  };
+
+  MultiStepForm.prototype._submit = function () {
+    return this.options.submitFun();
+  };
+
+  MultiStepForm.prototype._defaultValidateFun = function (element) {
+    try {
+      return element.reportValidity();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  MultiStepForm.prototype._reportValidity = function (ele) {
+    // report validity of the current step &amp; its children
+
+    function callExtraValidator(_element, validators) {
+      if (
+        _element == undefined ||
+        typeof _element.getAttribute == "undefined" ||
+        validators == undefined
+      ) {
+        return true;
+      }
+      var id = _element.getAttribute("id");
+      if (id == undefined) {
+        return true;
+      }
+      var validator = validators[id];
+      if (validator == undefined) {
+        return true;
+      }
+      return validator(_element);
+    }
+
+    var rv = true;
+    var validatables = [];
+    for (var i = 0; i &lt; this.options.validatableTags.length; i++) {
+      var elems = ele.querySelectorAll(this.options.validatableTags[i]);
+      for (var i2 = 0; i2 &lt; elems.length; i2++) {
+        validatables.push(elems[i2]);
+      }
+    }
+    for (var index = 0; index &lt; validatables.length; index++) {
+      var elem = validatables[index];
+      rv = rv &amp;&amp; callExtraValidator(elem, this.options.extraValidators);
+      if (this.options.noValidate.indexOf(elem.getAttribute("id")) === -1) {
+        rv = rv &amp;&amp; this.options.validateFun(elem);
+      }
+    }
+
+    return rv;
+  };
+
+  MultiStepForm.prototype._moveTo = function (targetStep) {
+    // This function will figure out which form-step to display
+    if (targetStep &lt; 0) {
+      return false;
+    }
+    var currentStep = this.getCurrentStep();
+    // Exit the function if any field in the current form-step is invalid:
+    // and wants to go next
+    if (
+      targetStep > currentStep &amp;&amp;
+      !this.reportValidity(this.formSteps[currentStep])
+    )
+      return false;
+    // if you have reached the end of the form...
+    if (targetStep >= this.stepLength) {
+      if (this.options.submitOnEnd) {
+        return this.submit();
+      } else {
+        throw Error(
+          "Nothing to do, This is the last step &amp; you pass `options.submitOnEnd`== false"
+        );
+      }
+    } else {
+      if (currentStep !== undefined &amp;&amp; currentStep !== null) {
+        this.options.hideFun(this.formSteps[currentStep]);
+        call(this.options.onStepHide, currentStep);
+      }
+      // Show current
+      this.options.showFun(this.formSteps[targetStep]);
+      // store the correct currentStep
+      this.options.storeCurrentStep(targetStep);
+      call(this.options.onStepShown, targetStep);
+    }
+  };
+
+  MultiStepForm.prototype._showNext = function () {
+    var current = this.getCurrentStep();
+    this.moveTo(current + 1);
+  };
+
+  MultiStepForm.prototype._showFirst = function () {
+    this.moveTo(0);
+  };
+
+  MultiStepForm.prototype._showPrev = function () {
+    var current = this.getCurrentStep();
+    this.moveTo(current - 1);
+  };
+
+  MultiStepForm.prototype._getCurrentStep = function () {
+    return this.options.getCurrentStep();
+  };
+
+  MultiStepForm.prototype._defaultGetCurrentStep = function () {
+    return this.currentStep;
+  };
+
+  MultiStepForm.prototype._defaultStoreCurrentStep = function (step) {
+    this.currentStep = step;
+  };
+
+  MultiStepForm.prototype._defaultSubmit = function () {
+    this.form.submit();
+    return false;
+  };
+
+  MultiStepForm.prototype._defaultHideFun = function (element) {
+    element.style.display = "none";
+  };
+
+  MultiStepForm.prototype._defaultShowFun = function (element) {
+    element.style.display = "block";
+  };
+
+  MultiStepForm.prototype._isLastStep = function () {
+    return this.options.getCurrentStep() === this.stepLength - 1;
+  };
+
+  return MultiStepForm;
+}
+
+// eslint-disable-next-line no-undef
+module.exports = initMSF;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="msf.html">msf</a></li></ul><h3>Classes</h3><ul><li><a href="msf.MultiStepForm.html">MultiStepForm</a></li></ul><h3>Global</h3><ul><li><a href="global.html#guid">guid</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Sat Jan 28 2023 20:12:53 GMT+0300 (Arabian Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
