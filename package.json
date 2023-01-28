@@ -1,12 +1,13 @@
 {
-  "name": "jusi",
+  "name": "juis",
   "version": "0.0.1-dev",
   "description": "Version: 0.0.1-dev ==================",
   "main": "index.js",
   "scripts": {
     "build": "browserify  src/index.js -o dist/juis.js --debug",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "http-server ."
+    "serve": "http-server .",
+    "doc": "jsdoc  -c jsdoc.json"
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,7 @@
     "prettier": "2.7.1"
   },
   "dependencies": {
+    "jsdocs": "^1.0.0",
     "watchify": "^4.0.0"
   }
 }
