@@ -151,7 +151,7 @@
             }
           }
 
-          window.multi = new juis.MSF(form, { onStepShown: onStepShown, submitOnEnd: true, validateEachStep: true, oninvalid: () => { console.log("form is invalid", multi.errors) } });
+          window.multi = new juis.MSF(form, { onStepShown: onStepShown, validateEachStep: false, oninvalid: () => { console.log("form is invalid", multi.errors) } });
           nextBtn.onclick = () => {
             multi.showNext();
           }
