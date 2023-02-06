@@ -65,6 +65,7 @@ function initMSF() {
     validatableTags: ["input", "select", "textarea"],
     validateEachStep: true,
     validateFun: null,
+    oninvalid: null,
   };
 
   function call(fn) {
