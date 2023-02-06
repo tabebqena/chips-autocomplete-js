@@ -243,6 +243,7 @@ function initMSF() {
       } else {
         var validationObj = elem.validity;
         validationObj.validationMessage = elem.validationMessage;
+        validationObj.step = this.getCurrentStep();
         this.errors[name] = validationObj;
       }
       rv = rv && isValid;
