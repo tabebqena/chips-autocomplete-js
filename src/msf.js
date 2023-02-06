@@ -212,11 +212,11 @@ function initMSF() {
       ) {
         return true;
       }
-      var id = _element.getAttribute("id");
-      if (id == undefined) {
+      var name = _element.getAttribute("name");
+      if (name == undefined) {
         return true;
       }
-      var validator = validators[id];
+      var validator = validators[name];
       if (validator == undefined) {
         return true;
       }
