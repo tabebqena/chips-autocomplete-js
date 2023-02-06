@@ -29,9 +29,9 @@ function initMSF() {
     * @property {function } defaults.submitFun   -  The function that acutually submit the form after the last step.
    - It recieves no parameters.
    - default is `form.submit()` 
-   * @property {function} defaults.submitOnEnd  - * whether to submit the form if showNext is called on the last step or not.
-   * This will be beneficial if you have "alterSubmitBtn='next'"
-   * If this option is `false` (default) & the `showNext()` method called, exception will be thrown.
+   * @property {function} defaults.afterLastStep  
+   - * The function that will run after reaching the last step & next step is requested.
+   * default is  submitting the form.
    * @property {function} defaults.alterSubmitBtn  - * If you create submit button in your form, You should specify valid value for this option.
    * Choices are: 'next', null, 'hide'
    * - next: means that clicking the submit button will show the next step.
@@ -40,10 +40,15 @@ function initMSF() {
    * @property {object} defaults.extraValidators  - *  this object map form field id to a single function that should validate it.
       the function will recieve the HTMLElement as single argument & should return `true`
       if validation success or `false` if failed.
-  * @property {array} defaults.noValidate  -list of element id`s that will escape from validation.
-  * @property {function } defaults.validateFun  - * The usual validator function that should run on all elements that thir id`s not in `noValidate`
-   * This function recieves the element to validate.
+  * @property {array} defaults.validatableTags  -list of element TAGs that can be validated, default is ['input', 'textarea', 'select'].
+  * @property {array} defaults.validateEachStep  - Whether each step should be validated before moving to the next step or not.
+  * @property {function } defaults.validateFun  - * The usual validator function that should run on all elements that are validatables, excluding those with `formnovalidate` attribute.
+   * This function recieves the element to validate., default is 'false'.
+   * Note that this function will never be called if the form has `novalidate` attribute.
    * default is `element.reportValidity()`
+   *  @property {function} defaults.oninvalid the function that runs if the form is invalid, it runs after form validation.
+   * This means that it if `defaults.validateEachStep` is `true` , it will run after each step, unless it will run once after the last step
+   * This function recieves no arguments. but you can access the form errors from the `errors` attribute of the form object. 
    */
   var defaults = {
     formStepClass: "form-step",
@@ -55,10 +60,10 @@ function initMSF() {
     showFun: null,
     submitFun: null,
     alterSubmitBtn: null, // [ 'next', 'null'. null, 'hide']
-    submitOnEnd: false,
+    afterLastStep: null,
     extraValidators: {},
-    noValidate: [],
     validatableTags: ["input", "select", "textarea"],
+    validateEachStep: true,
     validateFun: null,
   };
 
@@ -113,6 +118,9 @@ function initMSF() {
    * @property {Function} showFirst - move to the first step.
    * @property {Function} getCurrentStep - returns the current step index.
    * @property {Function} isLastStep - returns `true` if the current step is the last one.
+   * Notes:
+   * - if the form has `novalidate` attribute, no validation will run.
+   * - `errors` contains all form errors & updated after each validation.
    */
   function MultiStepForm(form, options) {
     this.form = form;
@@ -127,12 +135,15 @@ function initMSF() {
     this.getCurrentStep = this._getCurrentStep.bind(this);
     this.isLastStep = this._isLastStep.bind(this);
     this.fixOptions = this._fixOptions.bind(this);
+    this.tryToValidate = this._tryToValidate.bind(this);
 
     this.options = this.fixOptions(options);
     this.formSteps = this.form.getElementsByClassName(
       this.options.formStepClass
     );
     this.stepLength = this.formSteps.length;
+    this.novalidate = this.form.getAttribute("novalidate") !== null;
+    this.errors = {};
 
     if (this.formSteps.length === 0) {
       throw Error(
@@ -158,6 +169,8 @@ function initMSF() {
       this.options.hideFun || this._defaultHideFun.bind(this);
     this.options.validateFun =
       this.options.validateFun || this._defaultValidateFun.bind(this);
+    this.options.afterLastStep =
+      this.options.afterLastStep || this._afterLastStep.bind(this);
     return this.options;
   };
 
@@ -185,10 +198,11 @@ function initMSF() {
       console.error(e);
     }
   };
-
+  /** report validity of the element, it runs the `options.validateFun` on all element with `options.validatableTags` & also the `options.extravalidators`
+   * @param {*} ele the element to validate.
+   * @return {boolean} true if no errors
+   */
   MultiStepForm.prototype._reportValidity = function (ele) {
-    // report validity of the current step & its children
-
     function callExtraValidator(_element, validators) {
       if (
         _element == undefined ||
@@ -207,24 +221,48 @@ function initMSF() {
       }
       return validator(_element);
     }
-
     var rv = true;
     var validatables = [];
     for (var i = 0; i < this.options.validatableTags.length; i++) {
-      var elems = ele.querySelectorAll(this.options.validatableTags[i]);
-      for (var i2 = 0; i2 < elems.length; i2++) {
-        validatables.push(elems[i2]);
-      }
+      var queryString =
+        this.options.validatableTags[i] + "[name]:not([formnovalidate])";
+      ele.querySelectorAll(queryString).forEach(function (e) {
+        validatables.push(e);
+      });
     }
     for (var index = 0; index < validatables.length; index++) {
       var elem = validatables[index];
-      rv = rv && callExtraValidator(elem, this.options.extraValidators);
-      if (this.options.noValidate.indexOf(elem.getAttribute("id")) === -1) {
-        rv = rv && this.options.validateFun(elem);
+      var name = elem.getAttribute("name");
+      var isValid = true;
+      isValid = this.options.validateFun(elem);
+      isValid =
+        isValid && callExtraValidator(elem, this.options.extraValidators);
+      if (isValid) {
+        delete this.errors[name];
+      } else {
+        var validationObj = elem.validity;
+        validationObj.validationMessage = elem.validationMessage;
+        this.errors[name] = validationObj;
       }
+      rv = rv && isValid;
     }
-
     return rv;
+  };
+
+  MultiStepForm.prototype._tryToValidate = function () {
+    if (this.novalidate) {
+      return true;
+    }
+    var currentStep = this.getCurrentStep();
+    if (this.options.validateEachStep) {
+      return this.reportValidity(this.formSteps[currentStep]);
+    } else if (this.isLastStep()) {
+      // if `options.validateEachStep` is `false`, we should run validation at least one time befor submit.
+      // if there is error in validation, we shouldn't submit.
+      return this.reportValidity(this.form);
+    } else {
+      return true;
+    }
   };
 
   MultiStepForm.prototype._moveTo = function (targetStep) {
@@ -235,20 +273,15 @@ function initMSF() {
     var currentStep = this.getCurrentStep();
     // Exit the function if any field in the current form-step is invalid:
     // and wants to go next
-    if (
-      targetStep > currentStep &&
-      !this.reportValidity(this.formSteps[currentStep])
-    )
-      return false;
-    // if you have reached the end of the form...
-    if (targetStep >= this.stepLength) {
-      if (this.options.submitOnEnd) {
-        return this.submit();
-      } else {
-        throw Error(
-          "Nothing to do, This is the last step & you pass `options.submitOnEnd`== false"
-        );
+    if (targetStep > currentStep && !this.tryToValidate()) {
+      if (this.options.oninvalid !== null) {
+        this.options.oninvalid();
       }
+      return false;
+    }
+    // if you have reached the end of the form...
+    if (targetStep > currentStep && this.isLastStep()) {
+      return this.options.afterLastStep();
     } else {
       if (currentStep !== undefined && currentStep !== null) {
         this.options.hideFun(this.formSteps[currentStep]);
@@ -303,6 +336,9 @@ function initMSF() {
 
   MultiStepForm.prototype._isLastStep = function () {
     return this.options.getCurrentStep() === this.stepLength - 1;
+  };
+  MultiStepForm.prototype._afterLastStep = function () {
+    return this.submit();
   };
 
   return MultiStepForm;

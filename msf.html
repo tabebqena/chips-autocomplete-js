@@ -83,11 +83,12 @@
         <h1>Register:</h1>
         <!-- One "form-step" for each step in the form: -->
         <div class="form-step">Name:
-          <p><input placeholder="First name..." min="5" required name="fname"></p>
-          <p><input id="lname" placeholder="Last name..." min="5" required name="lname"></p>
+          <p><input placeholder="First name..." min="5" required name="fname"
+              oninvalid="console.log('name is invalid')"></p>
+          <p><input id="lname" placeholder="Last name..." min="5" formnovalidate name="lname"></p>
         </div>
         <div class="form-step">Contact Info:
-          <p><input placeholder="E-mail..." name="femail">
+          <p><input placeholder="E-mail..." type="email" name="femail">
           </p>
           <p><input placeholder="Phone..." oninput="this.className = ''" name="phone"></p>
         </div>
@@ -118,7 +119,6 @@
       <div class="step-indicator"></div>
       <div class="step-indicator"></div>
     </div>
-
     <script>
 
 
@@ -151,7 +151,7 @@
             }
           }
 
-          window.multi = new juis.MSF(form, { onStepShown: onStepShown, submitOnEnd: true, noValidate: ["lname"] });
+          window.multi = new juis.MSF(form, { onStepShown: onStepShown, submitOnEnd: true, validateEachStep: true, oninvalid: () => { console.log("form is invalid", multi.errors) } });
           nextBtn.onclick = () => {
             multi.showNext();
           }
